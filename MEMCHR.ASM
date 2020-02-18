@@ -20,9 +20,11 @@ data:	db 0Fh, 0Eh, 0Ch, 0Bh, 0Ah
 ;		AL - byte to find
 ; Outputs:	DI - adress of first equal byte 
 ;		or DI + CX if there is no such byte
-; Destructs:	DI, CX, AL
+; Destructs:	DI, CX, AL, ES
 ;========
 memchr	proc
+	mov	ax, ds
+	mov	es, ax
 	repne 	scasb
 	jne	@@end
 	sub	di, 1

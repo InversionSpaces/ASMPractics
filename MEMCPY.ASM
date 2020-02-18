@@ -29,8 +29,12 @@ two:	db 'two$'
 ; Inputs:	DS:SI - source address
 ;		ES:DI - destination address
 ;		CX - length
+; Outputs:	Nothing
+; Destructs:	DI, SI, CX, AX
 ;========
 memcpy	proc
+	mov	ax, ds
+	mov	ex, ax
 	rep	movsb
 	ret
 memcpy	endp
