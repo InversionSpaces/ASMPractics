@@ -15,6 +15,7 @@ end	start
 ; Destructs:	CX, DI
 ;========
 memset	proc
+	cld
 	rep	stosb
 	ret
 memset	endp

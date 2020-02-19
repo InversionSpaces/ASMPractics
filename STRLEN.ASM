@@ -21,13 +21,15 @@ MAXLEN	equ	00FFFFh
 ; Destructs:	AL, DI, CX
 ;========
 strlen	proc
+	cld
+
 	xor	al, al
 	mov	cx, MAXLEN
 
 	repne	scasb
 
 	xor	cx, MAXLEN
-	sub	cx, 1
+	dec	cx
 
 	ret
 strlen	endp

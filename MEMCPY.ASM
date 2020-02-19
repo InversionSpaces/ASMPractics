@@ -33,6 +33,7 @@ two:	db 'two$'
 ; Destructs:	DI, SI, CX, AX
 ;========
 memcpy	proc
+	cld
 	mov	ax, ds
 	mov	ex, ax
 	rep	movsb

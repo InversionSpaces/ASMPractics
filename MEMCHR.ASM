@@ -23,6 +23,7 @@ data:	db 0Fh, 0Eh, 0Ch, 0Bh, 0Ah
 ; Destructs:	DI, CX, AL, ES
 ;========
 memchr	proc
+	cld
 	mov	ax, ds
 	mov	es, ax
 	repne 	scasb

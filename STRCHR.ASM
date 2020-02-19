@@ -22,6 +22,7 @@ string:	db 'MEGA COOL STRING', 00h
 ; Corrupts:	DI
 ;========
 strchr	proc
+	cld
 @@loop:
 	scasb
 	je	@@found
@@ -29,7 +30,7 @@ strchr	proc
 	je	@@end
 	jmp	@@loop
 @@found:
-	sub	di, 1
+	dec	di
 @@end:
 	ret
 strchr	endp
