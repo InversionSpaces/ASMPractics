@@ -20,8 +20,8 @@ RBCOR	equ	00bch
 STARTX	equ	5
 STARTY	equ	5
 
-SIZEX	equ	20
-SIZEY	equ	8	
+SIZEX	equ	15
+SIZEY	equ	15	
 
 TICKS	equ	5
 
@@ -31,10 +31,90 @@ start:
 	mov	dl, SIZEX
 	mov	dh, SIZEY
 
-	CALL	DRAW_TABLE
+	CALL	ANIM_TABLE
 	
 	mov	ax, 4C00h
 	int	21h		; exit(0)
+
+
+;=======================
+; Inputs:	AL - first number
+;		AH - second number
+; Outputs:	CL - max of numbers
+; Destructs:	CL
+;=======================
+MAX	PROC
+	cmp	ah, al
+	jg	@@greater
+	
+	mov	cl, al
+	ret
+@@greater:
+	mov	cl, ah
+	ret	
+MAX	ENDP
+
+
+;=======================
+; Inputs: 	BL - x coord
+;		BH - y coord
+;		DL - sizex
+;		DH - sizey
+; Outputs:	Animate table
+; Destructs:	AX, BX, CX, DX, DI, ES
+;=======================
+ANIM_TABLE	PROC
+	mov	ax, dx		; ax = dx
+	sub	ah, 02h         ; ah -= 2
+	sub	al, 02h		; al -= 2
+	xor	cx, cx		; cx = 0
+
+	call	max		; cx = max(sizex - 2, sizey - 2)
+	inc	cx		; cx++ (for cx == 0)
+@@loop:
+        cmp	cl, al
+        jl	@@lsizex
+
+        mov	dl, 02h
+        jmp	@@sizex
+@@lsizex:
+        mov	dl, al
+        sub	dl, cl
+        add	dl, 02h		
+        
+@@sizex:			; dl = max(2, sizex - cx)
+	
+	cmp	cl, ah
+	jl	@@lsizey
+	           
+	mov	dh, 02h
+	jmp	@@sizey
+@@lsizey:
+	mov	dh, ah
+	sub	dh, cl
+	add	dh, 02h
+@@sizey:			; dh = max(2, sizey - cx)
+	
+	push	ax
+	push	bx
+	push	cx
+
+	call	DRAW_TABLE
+
+	mov	ah, 86h
+	mov	dx, 5FFFh
+	xor	cx, cx
+
+	int	15h
+
+	pop	cx
+	pop	bx
+	pop	ax
+
+	loop	@@loop
+	ret
+ANIM_TABLE	ENDP
+
 
 ; Inputs:	bl - x, bh - y
 ; Destroys:	ax, bx, dx
@@ -61,9 +141,9 @@ start:
 ;		DL - sizex 
 ;		DH - sizey
 ; Outputs:	Draw table
-; Destructs:
+; Destructs:    AX, BX, CX, DX, DI, ES
 ;=========================
-DRAW_TABLE PROC
+DRAW_TABLE	PROC
 	mov	cx, VIDSEG
 	mov	es, cx		; es = VIDSEG
 	
@@ -137,6 +217,8 @@ DRAW_TABLE PROC
 	add	cl, dh		; cx = sizey
 	sub	cx, 2		; cx = sizey - 2
 
+	cmp	cx, 00h
+	je	@@end
 @@fill:
 	inc	bh		; y++
 
@@ -173,8 +255,10 @@ DRAW_TABLE PROC
 	pop	cx		; restore cx
 	pop	dx		; restore dx
 	pop	bx		; restore bx
+	
 	loop	@@fill
 
+@@end:
 	add	bh, 02h		; y += 2
 	inc	bl		; x++
 	
@@ -186,6 +270,6 @@ DRAW_TABLE PROC
 	rep	stosw
 
 	ret	
-DRAW_TABLE ENDP
+DRAW_TABLE	ENDP
 
 end	start
