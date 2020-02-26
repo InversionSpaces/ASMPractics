@@ -3,6 +3,9 @@
 org	100h
 
 start:
+	mov	ax, ds
+	mov	es, ax
+
 	mov	ah, 09h	
 	mov	dx, offset one
 	int	21h
@@ -34,8 +37,6 @@ two:	db 'two$'
 ;========
 memcpy	proc
 	cld
-	mov	ax, ds
-	mov	ex, ax
 	rep	movsb
 	ret
 memcpy	endp

@@ -24,13 +24,13 @@ string:	db 'MEGA COOL STRING', 00h
 strchr	proc
 	cld
 @@loop:
-	scasb
-	je	@@found
 	cmp	byte ptr ds:[di], 00h
-	je	@@end
+	je	@@end			; if (!*di) break;
+	scasb				
+	je	@@found			; if (*(di++) == al) break;
 	jmp	@@loop
 @@found:
-	dec	di
+	dec	di			; di--
 @@end:
 	ret
 strchr	endp

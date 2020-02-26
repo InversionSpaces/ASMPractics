@@ -16,6 +16,7 @@ start:
 ; Destructs:	DI, SI
 ;========
 strcmp	proc
+	cld
 @@loop:
 	cmpsb
 	jne	@@end

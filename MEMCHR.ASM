@@ -15,7 +15,7 @@ start:
 
 data:	db 0Fh, 0Eh, 0Ch, 0Bh, 0Ah
 ;========
-; Inputs: 	DI - memory address
+; Inputs: 	DS:DI - memory address
 ;		CX - length
 ;		AL - byte to find
 ; Outputs:	DI - adress of first equal byte 
@@ -24,8 +24,6 @@ data:	db 0Fh, 0Eh, 0Ch, 0Bh, 0Ah
 ;========
 memchr	proc
 	cld
-	mov	ax, ds
-	mov	es, ax
 	repne 	scasb
 	jne	@@end
 	sub	di, 1

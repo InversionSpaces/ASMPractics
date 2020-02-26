@@ -15,12 +15,13 @@ start:
 ; Destructs:	DI, SI
 ;========
 strcpy	proc
+	cld
 @@loop:
-	cmp	byte ptr es:[di], 00h
+	cmp	byte ptr ds:[si], 00h
 	je	@@end
 	movsb
 @@end:
-	mov	byte ptr ds:[si], 00h
+	mov	byte ptr es:[di], 00h
 	ret
 strcpy	endp
 	

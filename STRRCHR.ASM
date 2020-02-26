@@ -16,6 +16,7 @@ start:
 ; Destructs:	DI, SI
 ;========
 strrchr	proc
+	cld
 	xor	si, si			; si = 0
 @@loop:
 	cmp	byte ptr ds:[di], 00h	
