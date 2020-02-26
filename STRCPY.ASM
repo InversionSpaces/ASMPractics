@@ -20,6 +20,7 @@ strcpy	proc
 	cmp	byte ptr ds:[si], 00h
 	je	@@end
 	movsb
+	jmp	@@loop
 @@end:
 	mov	byte ptr es:[di], 00h
 	ret
