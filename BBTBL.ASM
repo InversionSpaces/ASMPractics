@@ -17,16 +17,23 @@ RTCOR	equ	00bbh
 LBCOR	equ	00c8h
 RBCOR	equ	00bch
 
-STARTX	equ	5
-STARTY	equ	5
+STARTX	equ	3
+STARTY	equ	3
 
-SIZEX	equ	15
-SIZEY	equ	15	
+SIZEX	equ	20
+SIZEY	equ	8	
 
 TICKS	equ	5
 
 start:	
 	mov	bl, STARTX
+	mov	bh, STARTY
+	mov	dl, SIZEX
+	mov	dh, SIZEY
+
+	CALL	ANIM_TABLE
+	
+	mov	bl, STARTX + SIZEX + 1
 	mov	bh, STARTY
 	mov	dl, SIZEX
 	mov	dh, SIZEY
