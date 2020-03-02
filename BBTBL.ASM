@@ -1,9 +1,12 @@
 .286
-.model tiny
+.model	tiny
 .386
 .code
 org	100h
 
+locals	@@
+
+ARGST	equ	80h
 VIDSEG	equ	0b800h
 
 BGCODE	equ	0070h
@@ -23,26 +26,144 @@ STARTY	equ	3
 SIZEX	equ	20
 SIZEY	equ	8	
 
-TICKS	equ	5
+;TICKS	equ	5
 
 start:	
-	mov	bl, STARTX
-	mov	bh, STARTY
-	mov	dl, SIZEX
-	mov	dh, SIZEY
+	mov	si, offset ARGS
+	mov	bx, S_ARGS
 
-	CALL	ANIM_TABLE
+	call	READARGS	
 	
-	mov	bl, STARTX + SIZEX + 1
-	mov	bh, STARTY
-	mov	dl, SIZEX
-	mov	dh, SIZEY
+	mov	al, byte ptr [ARGS]
+	call	PRINTNUM
+
+	mov	al, byte ptr [ARGS + 1]
+	call	PRINTNUM
+
+	mov	al, byte ptr [ARGS + 2]
+	call	PRINTNUM
+
+	mov	al, byte ptr [ARGS + 3]
+	call	PRINTNUM
+
+	mov	bl, byte ptr [ARGS]
+	mov	bh, byte ptr [ARGS + 1]
+	mov	dl, byte ptr [ARGS + 2]
+	mov	dh, byte ptr [ARGS + 3]
 
 	CALL	ANIM_TABLE
 	
 	mov	ax, 4C00h
 	int	21h		; exit(0)
 
+ARGS	DB	4 DUP(?)
+S_ARGS	equ	$ - ARGS
+
+
+PRINTNUM	PROC
+@@loop:
+	xor	ah, ah	
+
+	mov	bl, 0Ah
+	div	bl
+
+	mov	dl, ah
+	add	dl, '0'
+
+	mov	bl, al
+
+	mov	ah, 02h	
+	int	21h
+
+	mov	al, bl
+	
+	cmp	al, 00h
+	jne	@@loop
+
+	mov	dl, 0Ah
+	mov	ah, 02h
+	int 	21h
+
+	mov	dl, 0Dh
+	mov	ah, 02h
+	int	21h
+
+	ret		
+PRINTNUM	ENDP
+
+;================================
+; Inputs: 	SI - adress of array of bytes
+;		BX - size of array
+; Outputs:	parsed numbers from command line in array
+; Destroys:	AX, BX, CX, DX, DI, SI
+;================================
+READARGS	PROC
+	mov	di, ARGST		; di = ARGS BYTES START
+
+	xor	ch, ch
+	mov	cl, byte ptr [di]	; cx = ARGS BYTES COUNT
+
+	cmp	cx, 00h
+	je	@@end			; if (cx == 0) return
+
+	inc	di			; di++
+
+@@args_loop:
+	; If readed all args - end
+	cmp	bx, 00h
+	je	@@end
+
+	; find non space symbol
+	mov	al, ' '
+	repe	scasb
+
+	; if finded symbol is space - return
+	cmp	byte ptr [di - 1], ' '
+	je	@@end
+
+	xor	ax, ax
+	xor	dx, dx
+
+@@num_loop:
+	; CONVERT DIGIT {	
+	mov	dl, 0Ah
+	mul	dl			; ax *= 10
+	
+	mov	dl, byte ptr [di - 1]
+	sub	dl, '0'			; dl = [di] - '0'
+
+	add	al, dl
+	adc	ah, 00h			; ax += dl
+	; } CONVERT DIGIT
+	
+	; If its last symbol, write and return
+	cmp	cx, 00h
+	je	@@write_end
+
+	dec	cx
+	inc	di
+	
+	; If next symbol is not space - continue
+	cmp	byte ptr [di - 1], ' '
+	jne	@@num_loop
+	
+	; OUTPUT {
+	mov	byte ptr [si], al
+
+	inc	si
+	dec	bx
+	; } OUTPUT
+
+	jmp	@@args_loop
+
+@@write_end:
+	mov	byte ptr [si], al
+	dec	bx
+
+@@end:
+	ret
+
+READARGS	ENDP
 
 ;=======================
 ; Inputs:	AL - first number
@@ -76,7 +197,7 @@ ANIM_TABLE	PROC
 	sub	al, 02h		; al -= 2
 	xor	cx, cx		; cx = 0
 
-	call	max		; cx = max(sizex - 2, sizey - 2)
+	call	MAX		; cx = max(sizex - 2, sizey - 2)
 	inc	cx		; cx++ (for cx == 0)
 @@loop:
         cmp	cl, al
@@ -122,10 +243,11 @@ ANIM_TABLE	PROC
 	ret
 ANIM_TABLE	ENDP
 
-
+;------------------------------
 ; Inputs:	bl - x, bh - y
 ; Destroys:	ax, bx, dx
 ; Outputs:	di - offset
+;------------------------------
 .countoffset	macro
 	xor	ax, ax		; ax = 0
 	
@@ -167,7 +289,7 @@ DRAW_TABLE	PROC
 
 	mov	bx, cx		; restore bx
 
-	; TOPBAR {
+; TOPBAR {
 	add	di, 02h		; di += 2
 	
 	xor	cx, cx		; cx = 0
@@ -176,7 +298,7 @@ DRAW_TABLE	PROC
 
 	mov	ax, (BGCODE shl 8) or HEDGE
 	rep	stosw
-	; }
+; }
 
 	; RTCOR {
 	mov	ax, (BGCODE shl 8) or RTCOR
