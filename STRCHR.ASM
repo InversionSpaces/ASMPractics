@@ -28,7 +28,6 @@ strchr	proc
 	je	@@end			; if (!*di) break;
 	scasb				
 	jne	@@loop			; if (*(di++) == al) break;
-@@found:
 	dec	di			; di--
 @@end:
 	ret
