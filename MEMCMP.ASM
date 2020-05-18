@@ -17,6 +17,7 @@ end	start
 memcmp	proc
 	mov	ax, ds
 	mov	es, ax
+	cld
 	repe	cmpsb
 	ret
 memcmp	endp
