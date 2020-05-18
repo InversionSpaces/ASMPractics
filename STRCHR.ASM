@@ -27,8 +27,7 @@ strchr	proc
 	cmp	byte ptr ds:[di], 00h
 	je	@@end			; if (!*di) break;
 	scasb				
-	je	@@found			; if (*(di++) == al) break;
-	jmp	@@loop
+	jne	@@loop			; if (*(di++) == al) break;
 @@found:
 	dec	di			; di--
 @@end:
