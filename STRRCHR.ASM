@@ -13,16 +13,18 @@ start:
 ;		AL - char to find
 ; Outputs:	SI - adress of most right such char in string
 ;		or adress of null byte if there is no such symbol
-; Destructs:	DI, SI
+; Destructs:	DI, SI, AX
 ;========
 strrchr	proc
 	cld
 	xor	si, si			; si = 0
 @@loop:
-	cmp	byte ptr ds:[di], 00h	
+	mov	ah, byte ptr ds:[di]
+	cmp	ah, 00h	
 	je	@@check			; if (!*di) break;
 	
-	scasb
+	cmp	ah, al
+	inc 	di
 	jne	@@loop			; if (*di != al) continue
 
 	mov	si, di
