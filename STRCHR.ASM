@@ -19,14 +19,16 @@ string:	db 'MEGA COOL STRING', 00h
 ;		AL - char to find
 ; Outputs:	DI - address of first such byte in string or adress of null
 ;		if thre is no such byte
-; Corrupts:	DI
+; Corrupts:	DI, AX
 ;========
 strchr	proc
 	cld
 @@loop:
-	cmp	byte ptr ds:[di], 00h
+	mov	ah, byte ptr ds:[di]
+	cmp	ah, 00h
 	je	@@end			; if (!*di) break;
-	scasb				
+	cmp	ah, al
+	inc	di
 	jne	@@loop			; if (*(di++) == al) break;
 	dec	di			; di--
 @@end:
